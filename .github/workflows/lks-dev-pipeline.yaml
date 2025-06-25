@@ -37,6 +37,12 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # - name: Generate .env file
+      #   run: |
+      #     echo "LEAN_DB_USER=${{ secrets.LEAN_DB_USER }}" >> .env
+      #     echo "LEAN_DB_PASSWORD=${{ secrets.LEAN_DB_PASSWORD }}" >> .env
+      #     echo "LEAN_PORT=${{ secrets.LEAN_PORT }}" >> .env
+
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
