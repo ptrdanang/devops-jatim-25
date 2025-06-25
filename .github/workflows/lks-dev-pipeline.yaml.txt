@@ -6,24 +6,20 @@ on:
       - dev
     paths:
       - .github/workflows/lks-dev-pipeline.yaml
-      # - docker-stack.yml
-      # - README.md
+      - gatus/**
+      - leantime/**
 
 env:
   AWS_REGION: "us-east-1"
   ECR_REPOSITORY: "lks-gatus"
   ECS_CLUSTER: "lks-oss-cluster-dev"
-  TOKEN: ${{ secrets.TOKEN }}
-
-  LEANTIME_URL: ${{ secrets.LEANTIME_URL }}
   LEANTIME_TASK_DEFINITION: leantime/task-definition.json
   ECS_LEANTIME_SERVICE: "leantime-service"
 
-  # Gatus configuration
   GATUS_CONFIG_FILE: "gatus/config/config.yaml"
   ECS_GATUS_SERVICE: "gatus-service"
   GATUS_TASK_DEFINITION: "gatus/task-definition.json"
-  GATUS_URL: ${{ secrets.ALB_ENDPOINT }}
+  LEANTIME_URL: ${{ secrets.ALB_ENDPOINT }}
 
 permissions:
   contents: read
@@ -45,6 +41,12 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # - name: Generate .env file
+      #   run: |
+      #     echo "LEAN_DB_USER=${{ secrets.LEAN_DB_USER }}" >> .env
+      #     echo "LEAN_DB_PASSWORD=${{ secrets.LEAN_DB_PASSWORD }}" >> .env
+      #     echo "LEAN_PORT=${{ secrets.LEAN_PORT }}" >> .env
+
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
@@ -52,8 +54,7 @@ jobs:
           service: ${{ env.ECS_LEANTIME_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           force-new-deployment: true
-          run-task-tags: '[{"key": "", "value": ""} , ...]'
-# -----
+
   deploy-gatus:
     name: Deploy Gatus App
     runs-on: ubuntu-latest
@@ -74,11 +75,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Update Configuration
+      - name: Update Gatus config
         env:
-          TOKEN: ${{ env.TOKEN }}
-          GATUS_URL: ${{ env.GATUS_URL }}
-          LEANTIME_URL: ${{ env.LEANTIME_URL }}
+          TOKEN: ${{ secrets.TOKEN }}
+          GATUS_URL: ${{ secrets.ALB_ENDPOINT }}
+          LEANTIME_URL: ${{ secrets.LEANTIME_URL }}
         run: |
           sed -i "s|<github-token>|$TOKEN|g" gatus/config/config.yaml
           sed -i "s|<leantime-url>|$LEANTIME_URL|g" gatus/config/config.yaml
@@ -90,33 +91,29 @@ jobs:
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
         shell: bash
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push Docker image to ECR
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          # gunakan tas berdasarkan commit SHA sebagai tag
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "IMAGE_FULL_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+          IMAGE_TAG=${{ github.sha }}
+          IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $IMAGE_URI -f gatus/Dockerfile gatus
+          docker tag $IMAGE_URI $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $IMAGE_URI
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "IMAGE_FULL_URI=$IMAGE_URI" >> $GITHUB_ENV
 
-      - name: Update ECS task definition
-        env:
-          GATUS_TASK_DEFINITION: ${{ env.GATUS_TASK_DEFINITION }}
+      - name: Update ECS task definition with image URI
         run: |
           sed -i "s|<task-def-image>|$IMAGE_FULL_URI|g" $GATUS_TASK_DEFINITION
           echo "Task definition updated."
           cat $GATUS_TASK_DEFINITION
 
-      - name: deploy ecs task definition
+      - name: Deploy ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ env.GATUS_TASK_DEFINITION }}
           service: ${{ env.ECS_GATUS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           force-new-deployment: true
-          run-task-tags: '[{"key": "", "value": ""} , ...]'
