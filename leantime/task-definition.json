@@ -1,7 +1,7 @@
 {
   "family": "lks-leantime-app",
-  "taskRoleArn": "arn:aws:iam::748381872886:role/LksTaskRole",
-  "executionRoleArn": "arn:aws:iam::748381872886:role/LksExecutionRole",
+  "taskRoleArn": "arn:aws:iam::748381872886:role/LabRole",
+  "executionRoleArn": "arn:aws:iam::748381872886:role/LabRole",
   "networkMode": "awsvpc",
   "requiresCompatibilities": [
     "FARGATE"
