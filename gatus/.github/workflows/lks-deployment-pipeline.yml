@@ -1,0 +1,50 @@
+name: LKS Deployment Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "gatus/**"
+      - ".github/workflows/lks-deployment-pipeline.yml"
+
+jobs:
+  build-gatus:
+    name: Build and Push Gatus Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/lks-gatus:latest"
+          docker build -t $IMAGE_URI ./gatus
+          docker push $IMAGE_URI
+
+      - name: Render Gatus Task Definition
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: gatus/task-definition.json
+          container-name: gatus
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/lks-gatus:latest
+
+      - name: Deploy to ECS Service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: gatus-service
+          cluster: lks-oss-cluster
+          wait-for-service-stability: true
