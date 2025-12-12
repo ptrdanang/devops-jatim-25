@@ -8,44 +8,7 @@
   ],
   "cpu": "1024",
   "memory": "2048",
-  "volumes": [
-    {
-      "efsVolumeConfiguration": {
-        "authorizationConfig": {
-          "accessPointId": "fsap-038290b1cf5a7b44d",
-          "iam": "ENABLED"
-        },
-        "fileSystemId": "fs-0b07c90068b47a7e2",
-        "rootDirectory": "/",
-        "transitEncryption": "ENABLED"
-      },
-      "name": "public"
-    },
-    {
-      "efsVolumeConfiguration": {
-        "authorizationConfig": {
-          "accessPointId": "fsap-0a1ff6ee14cecd9bc",
-          "iam": "ENABLED"
-        },
-        "fileSystemId": "fs-0b07c90068b47a7e2",
-        "rootDirectory": "/",
-        "transitEncryption": "ENABLED"
-      },
-      "name": "user"
-    },
-    {
-      "efsVolumeConfiguration": {
-        "authorizationConfig": {
-          "accessPointId": "fsap-05d89133e2a928353",
-          "iam": "ENABLED"
-        },
-        "fileSystemId": "fs-0b07c90068b47a7e2",
-        "rootDirectory": "/",
-        "transitEncryption": "ENABLED"
-      },
-      "name": "plugins"
-    }
-  ],
+  "volumes": [],
 
   "placementConstraints": [],
   "runtimePlatform": {
