@@ -80,7 +80,7 @@
       ],
 
       "environment": [
-        { "name": "APP_URL", "value": "http://lksoss-lb-1903512492.us-east-1.elb.amazonaws.com" },
+        { "name": "APP_URL", "value": "http://lks-oss-lb-1231601060.us-east-1.elb.amazonaws.com" },
         { "name": "APP_PORT", "value": "8080" },
         { "name": "SITENAME", "value": "LKS Leantime" },
         { "name": "DEFAULT_TIMEZONE", "value": "Asia/Jakarta" }
