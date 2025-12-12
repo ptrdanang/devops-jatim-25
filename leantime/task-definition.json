@@ -95,12 +95,12 @@
           "sourceVolume": "public"
         },
         {
-          "containerPath": "/var/www/html/userfiles ",
+          "containerPath": "/var/www/html/userfiles",
           "readOnly": false,
           "sourceVolume": "user"
         },
         {
-          "containerPath": "/var/www/html/app/plugins ",
+          "containerPath": "/var/www/html/app/plugins",
           "readOnly": false,
           "sourceVolume": "plugins"
         }
