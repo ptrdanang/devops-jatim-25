@@ -85,23 +85,7 @@
         { "name": "DEFAULT_TIMEZONE", "value": "Asia/Jakarta" }
       ],
 
-      "mountPoints": [
-        {
-          "containerPath": "/var/www/html/public/userfiles",
-          "readOnly": false,
-          "sourceVolume": "public"
-        },
-        {
-          "containerPath": "/var/www/html/userfiles ",
-          "readOnly": false,
-          "sourceVolume": "user"
-        },
-        {
-          "containerPath": "/var/www/html/app/plugins ",
-          "readOnly": false,
-          "sourceVolume": "plugins"
-        }
-      ],
+
 
       "logConfiguration": {
         "logDriver": "awslogs",
