@@ -1,4 +1,4 @@
-FROM leantime/leantime:3.1.9
+FROM leantime/leantime:latest
 
 USER root
 COPY entrypoint.sh /entrypoint.sh
