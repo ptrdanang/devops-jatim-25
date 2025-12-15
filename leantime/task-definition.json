@@ -71,33 +71,20 @@
         }
       ],
 
-      "environment": [
-        {
-          "name": "DB_HOST",
-          "value": "lks-project-management-cluster.cluster-c7i8uumoqg9s.us-east-1.rds.amazonaws.com"
-        },
-        {
-          "name": "DB_PORT",
-          "value": "3306"
-        },
-        {
-          "name": "DB_DATABASE",
-          "value": "leantime_db"
-        },
-        {
-          "name": "DB_USERNAME",
-          "value": "admin"
-        },
-        {
-          "name": "DB_PASSWORD",
-          "value": "lksdanang"
-        },
-        {
-          "name": "APP_URL",
-          "value": "http://lks-oss-lb-1522672891.us-east-1.elb.amazonaws.com"
-        }
+      "secrets": [
+        { "name": "DB_HOST", "valueFrom": "/lks/db/host" },
+        { "name": "DB_PORT", "valueFrom": "/lks/db/port" },
+        { "name": "DB_NAME", "valueFrom": "/lks/db/name" },
+        { "name": "DB_USERNAME", "valueFrom": "/lks/db/username" },
+        { "name": "DB_PASSWORD", "valueFrom": "/lks/db/password" }
       ],
 
+      "environment": [
+        { "name": "APP_URL", "value": "http://lks-oss-lb-1522672891.us-east-1.elb.amazonaws.com" },
+        { "name": "APP_PORT", "value": "8080" },
+        { "name": "SITENAME", "value": "LKS Leantime" },
+        { "name": "DEFAULT_TIMEZONE", "value": "Asia/Jakarta" }
+      ],
 
       "mountPoints": [
         {
