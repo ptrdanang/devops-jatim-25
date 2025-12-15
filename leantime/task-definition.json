@@ -57,7 +57,7 @@
   "containerDefinitions": [
     {
       "name": "leantime",
-      "image": "leantime/leantime:latest",
+      "image": "leantime/leantime:3.2.2",
       "cpu": 0,
       "essential": true,
       "volumesFrom": [],
